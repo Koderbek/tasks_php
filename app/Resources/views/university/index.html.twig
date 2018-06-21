@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Universities list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for university in universities %}
+            <tr>
+                <td><a href="{{ path('university_show', { 'id': university.id }) }}">{{ university.id }}</a></td>
+                <td>{{ university.name }}</td>
+                <td>{{ university.address }}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('university_show', { 'id': university.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('university_edit', { 'id': university.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('university_new') }}">Create a new university</a>
+        </li>
+    </ul>
+{% endblock %}

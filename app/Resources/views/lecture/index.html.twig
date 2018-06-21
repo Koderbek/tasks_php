@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Lectures list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for lecture in lectures %}
+            <tr>
+                <td><a href="{{ path('lecture_show', { 'id': lecture.id }) }}">{{ lecture.id }}</a></td>
+                <td>{{ lecture.status }}</td>
+                <td>{% if lecture.date %}{{ lecture.date|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('lecture_show', { 'id': lecture.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('lecture_edit', { 'id': lecture.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('lecture_new') }}">Create a new lecture</a>
+        </li>
+    </ul>
+{% endblock %}

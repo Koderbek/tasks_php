@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Students list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Age</th>
+                <th>Id</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Password</th>
+                <th>Salt</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+            <tr>
+                <td><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.age }}</a></td>
+                <td>{{ student.id }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.role }}</td>
+                <td>{{ student.password }}</td>
+                <td>{{ student.salt }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.surname }}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('student_show', { 'id': student.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('student_edit', { 'id': student.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('student_new') }}">Create a new student</a>
+        </li>
+    </ul>
+{% endblock %}
