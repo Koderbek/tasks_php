@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\University;
+use AppBundle\Form\UniversityType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +25,7 @@ class UniversityController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $universities = $em->getRepository('AppBundle:University')->findAll();
+        $universities = $em->getRepository(University::class)->findAll();
 
         return $this->render('university/index.html.twig', array(
             'universities' => $universities,
@@ -40,7 +41,7 @@ class UniversityController extends Controller
     public function newAction(Request $request)
     {
         $university = new University();
-        $form = $this->createForm('AppBundle\Form\UniversityType', $university);
+        $form = $this->createForm(UniversityType::class, $university);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -65,11 +66,8 @@ class UniversityController extends Controller
      */
     public function showAction(University $university)
     {
-        $deleteForm = $this->createDeleteForm($university);
-
         return $this->render('university/show.html.twig', array(
             'university' => $university,
-            'delete_form' => $deleteForm->createView(),
         ));
     }
 
@@ -81,8 +79,7 @@ class UniversityController extends Controller
      */
     public function editAction(Request $request, University $university)
     {
-        $deleteForm = $this->createDeleteForm($university);
-        $editForm = $this->createForm('AppBundle\Form\UniversityType', $university);
+        $editForm = $this->createForm(UniversityType::class, $university);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -94,43 +91,21 @@ class UniversityController extends Controller
         return $this->render('university/edit.html.twig', array(
             'university' => $university,
             'edit_form' => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
         ));
     }
 
     /**
      * Deletes a university entity.
      *
-     * @Route("/{id}", name="university_delete")
-     * @Method("DELETE")
+     * @Route("/delete/{id}", name="university_delete")
+     * @Method("GET")
      */
     public function deleteAction(Request $request, University $university)
     {
-        $form = $this->createDeleteForm($university);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($university);
-            $em->flush();
-        }
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($university);
+        $em->flush();
 
         return $this->redirectToRoute('university_index');
-    }
-
-    /**
-     * Creates a form to delete a university entity.
-     *
-     * @param University $university The university entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm(University $university)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('university_delete', array('id' => $university->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
-        ;
     }
 }

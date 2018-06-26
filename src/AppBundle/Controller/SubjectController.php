@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Subject;
+use AppBundle\Form\SubjectType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +25,7 @@ class SubjectController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $subjects = $em->getRepository('AppBundle:Subject')->findAll();
+        $subjects = $em->getRepository(Subject::class)->findAll();
 
         return $this->render('subject/index.html.twig', array(
             'subjects' => $subjects,
@@ -40,7 +41,7 @@ class SubjectController extends Controller
     public function newAction(Request $request)
     {
         $subject = new Subject();
-        $form = $this->createForm('AppBundle\Form\SubjectType', $subject);
+        $form = $this->createForm(SubjectType::class, $subject);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -65,11 +66,8 @@ class SubjectController extends Controller
      */
     public function showAction(Subject $subject)
     {
-        $deleteForm = $this->createDeleteForm($subject);
-
         return $this->render('subject/show.html.twig', array(
             'subject' => $subject,
-            'delete_form' => $deleteForm->createView(),
         ));
     }
 
@@ -81,8 +79,7 @@ class SubjectController extends Controller
      */
     public function editAction(Request $request, Subject $subject)
     {
-        $deleteForm = $this->createDeleteForm($subject);
-        $editForm = $this->createForm('AppBundle\Form\SubjectType', $subject);
+        $editForm = $this->createForm(SubjectType::class, $subject);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -94,43 +91,21 @@ class SubjectController extends Controller
         return $this->render('subject/edit.html.twig', array(
             'subject' => $subject,
             'edit_form' => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
         ));
     }
 
     /**
      * Deletes a subject entity.
      *
-     * @Route("/{id}", name="subject_delete")
-     * @Method("DELETE")
+     * @Route("/delete/{id}", name="subject_delete")
+     * @Method("GET")
      */
     public function deleteAction(Request $request, Subject $subject)
     {
-        $form = $this->createDeleteForm($subject);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($subject);
-            $em->flush();
-        }
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($subject);
+        $em->flush();
 
         return $this->redirectToRoute('subject_index');
-    }
-
-    /**
-     * Creates a form to delete a subject entity.
-     *
-     * @param Subject $subject The subject entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm(Subject $subject)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('subject_delete', array('id' => $subject->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
-        ;
     }
 }

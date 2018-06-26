@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Lecture;
+use AppBundle\Form\LectureType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +25,7 @@ class LectureController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lectures = $em->getRepository('AppBundle:Lecture')->findAll();
+        $lectures = $em->getRepository(Lecture::class)->findAll();
 
         return $this->render('lecture/index.html.twig', array(
             'lectures' => $lectures,
@@ -40,7 +41,7 @@ class LectureController extends Controller
     public function newAction(Request $request)
     {
         $lecture = new Lecture();
-        $form = $this->createForm('AppBundle\Form\LectureType', $lecture);
+        $form = $this->createForm(LectureType::class, $lecture);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -65,11 +66,8 @@ class LectureController extends Controller
      */
     public function showAction(Lecture $lecture)
     {
-        $deleteForm = $this->createDeleteForm($lecture);
-
         return $this->render('lecture/show.html.twig', array(
             'lecture' => $lecture,
-            'delete_form' => $deleteForm->createView(),
         ));
     }
 
@@ -81,8 +79,7 @@ class LectureController extends Controller
      */
     public function editAction(Request $request, Lecture $lecture)
     {
-        $deleteForm = $this->createDeleteForm($lecture);
-        $editForm = $this->createForm('AppBundle\Form\LectureType', $lecture);
+        $editForm = $this->createForm(LectureType::class, $lecture);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -94,43 +91,21 @@ class LectureController extends Controller
         return $this->render('lecture/edit.html.twig', array(
             'lecture' => $lecture,
             'edit_form' => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
         ));
     }
 
     /**
      * Deletes a lecture entity.
      *
-     * @Route("/{id}", name="lecture_delete")
-     * @Method("DELETE")
+     * @Route("/delete/{id}", name="lecture_delete")
+     * @Method("GET")
      */
     public function deleteAction(Request $request, Lecture $lecture)
     {
-        $form = $this->createDeleteForm($lecture);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($lecture);
-            $em->flush();
-        }
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($lecture);
+        $em->flush();
 
         return $this->redirectToRoute('lecture_index');
-    }
-
-    /**
-     * Creates a form to delete a lecture entity.
-     *
-     * @param Lecture $lecture The lecture entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm(Lecture $lecture)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lecture_delete', array('id' => $lecture->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
-        ;
     }
 }

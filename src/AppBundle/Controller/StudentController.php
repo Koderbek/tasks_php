@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Student;
+use AppBundle\Form\StudentType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +25,7 @@ class StudentController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $students = $em->getRepository('AppBundle:Student')->findAll();
+        $students = $em->getRepository(Student::class)->findAll();
 
         return $this->render('student/index.html.twig', array(
             'students' => $students,
@@ -40,7 +41,7 @@ class StudentController extends Controller
     public function newAction(Request $request)
     {
         $student = new Student();
-        $form = $this->createForm('AppBundle\Form\StudentType', $student);
+        $form = $this->createForm(StudentType::class, $student);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -65,11 +66,8 @@ class StudentController extends Controller
      */
     public function showAction(Student $student)
     {
-        $deleteForm = $this->createDeleteForm($student);
-
         return $this->render('student/show.html.twig', array(
             'student' => $student,
-            'delete_form' => $deleteForm->createView(),
         ));
     }
 
@@ -81,8 +79,7 @@ class StudentController extends Controller
      */
     public function editAction(Request $request, Student $student)
     {
-        $deleteForm = $this->createDeleteForm($student);
-        $editForm = $this->createForm('AppBundle\Form\StudentType', $student);
+        $editForm = $this->createForm(StudentType::class, $student);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -94,43 +91,21 @@ class StudentController extends Controller
         return $this->render('student/edit.html.twig', array(
             'student' => $student,
             'edit_form' => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
         ));
     }
 
     /**
      * Deletes a student entity.
      *
-     * @Route("/{id}", name="student_delete")
-     * @Method("DELETE")
+     * @Route("/delete/{id}", name="student_delete")
+     * @Method("GET")
      */
     public function deleteAction(Request $request, Student $student)
     {
-        $form = $this->createDeleteForm($student);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $em->remove($student);
             $em->flush();
-        }
 
         return $this->redirectToRoute('student_index');
-    }
-
-    /**
-     * Creates a form to delete a student entity.
-     *
-     * @param Student $student The student entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm(Student $student)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('student_delete', array('id' => $student->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
-        ;
     }
 }
